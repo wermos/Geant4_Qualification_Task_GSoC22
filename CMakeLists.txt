@@ -15,3 +15,4 @@ file(GLOB SOURCES
 # add the executable
 add_executable(solver ${SOURCES})
 
+target_include_directories(solver PUBLIC external/boost/include)
