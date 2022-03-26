@@ -7,29 +7,36 @@
 class vec3 {
 	public:
 		constexpr vec3() noexcept : m_e{0, 0, 0} {}
-		constexpr vec3(Float e0, Float e1, Float e2) noexcept : m_e{e0, e1, e2} {}
+		constexpr vec3(double e0, double e1, double e2) noexcept : m_e{e0, e1, e2} {}
+		constexpr vec3(double (&array)[3]) noexcept : m_e{array[0], array[1], array[2]} {}
 
-		constexpr Float x() const {
+		constexpr double x() const {
 			return m_e[0];
 		}
 
-		constexpr Float y() const {
+		constexpr double y() const {
 			return m_e[1];
 		}
 
-		constexpr Float z() const {
+		constexpr double z() const {
 			return m_e[2];
 		}
 
-		constexpr vec3 operator-() const {
-			return vec3(-m_e[0], -m_e[1], -m_e[2]);
+		constexpr void toArray(double (&out)[3]) const {
+			for (auto i = 0; i < 3; ++i) {
+				out[i] = m_e[i];
+			}
 		}
 
-		constexpr const Float& operator[](int i) const {
+		constexpr vec3 operator-() const {
+			return {-m_e[0], -m_e[1], -m_e[2]};
+		}
+
+		constexpr const double& operator[](int i) const {
 			return m_e[i];
 		}
 
-		constexpr Float& operator[](int i) {
+		constexpr double& operator[](int i) {
 			return m_e[i];
 		}
 
@@ -47,18 +54,18 @@ class vec3 {
 			return u;
 		}
 
-		friend constexpr vec3& operator*=(vec3& v, const Float t) {
+		friend constexpr vec3& operator*=(vec3& v, const double t) {
 			v.m_e[0] *= t;
 			v.m_e[1] *= t;
 			v.m_e[2] *= t;
 			return v;
 		}
 
-		friend constexpr vec3& operator*=(const Float t, vec3& v) {
+		friend constexpr vec3& operator*=(const double t, vec3& v) {
 			return v *= t;
 		}
 
-		friend constexpr vec3& operator/=(vec3& v, const Float t) {
+		friend constexpr vec3& operator/=(vec3& v, const double t) {
 			return v *= (1 / t);
 		}
 
@@ -74,25 +81,25 @@ class vec3 {
 			return copy;
 		}
 
-		friend constexpr vec3 operator*(const vec3& v, const Float t) {
+		friend constexpr vec3 operator*(const vec3& v, const double t) {
 			vec3 copy = v;
 			copy *= t;
 			return copy;
 		}
 
-		friend constexpr vec3 operator*(const Float t, const vec3& v) {
+		friend constexpr vec3 operator*(const double t, const vec3& v) {
 			vec3 copy = v;
 			copy *= t;
 			return copy;
 		}
 
-		friend constexpr vec3 operator/(const vec3& v, const Float t) {
+		friend constexpr vec3 operator/(const vec3& v, const double t) {
 			vec3 copy = v;
 			copy /= t;
 			return copy;
 		}
 
-		constexpr static Float dot(const vec3& u, const vec3& v) {
+		constexpr static double dot(const vec3& u, const vec3& v) {
 			return u.m_e[0] * v.m_e[0]
 				 + u.m_e[1] * v.m_e[1]
 				 + u.m_e[2] * v.m_e[2];
@@ -108,7 +115,7 @@ class vec3 {
 			return v / v.length();
 		}
 
-		constexpr Float length() const {
+		constexpr double length() const {
 			return std::sqrt(m_e[0] * m_e[0] + m_e[1] * m_e[1] + m_e[2] * m_e[2]);
 		}
 
@@ -118,7 +125,7 @@ class vec3 {
 		}
 
 	private:
-		Float m_e[3];
+		double m_e[3];
 };
 
 #endif // VEC3_HPP
