@@ -12,7 +12,13 @@ file(GLOB SOURCES
 	 *.cpp
 ) 
 
+find_package(Python3 COMPONENTS Development)
+
 # add the executable
 add_executable(solver ${SOURCES})
 
 target_include_directories(solver PUBLIC external/boost/include)
+target_include_directories(solver PUBLIC ${Python3_INCLUDE_DIRS})
+target_include_directories(solver PUBLIC external/matplotlib-cpp)
+
+target_link_libraries(solver PUBLIC ${Python3_LIBRARIES})
