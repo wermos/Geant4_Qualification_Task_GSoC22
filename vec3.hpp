@@ -121,6 +121,10 @@ class vec3 {
 		constexpr double length() const {
 			return std::sqrt(m_e[0] * m_e[0] + m_e[1] * m_e[1] + m_e[2] * m_e[2]);
 		}
+		
+		constexpr double lengthSquared() const {
+			return m_e[0] * m_e[0] + m_e[1] * m_e[1] + m_e[2] * m_e[2];
+		}
 
 		friend std::ostream& operator<<(std::ostream& out, const vec3& v) {
 			out << v.m_e[0] << " " << v.m_e[1] << " " << v.m_e[2];
