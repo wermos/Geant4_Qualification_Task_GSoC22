@@ -2,13 +2,15 @@
 #define VEC3_HPP
 
 #include <cmath>
+#include <array>
 #include <ostream>
 
 class vec3 {
 	public:
 		constexpr vec3() noexcept : m_e{0, 0, 0} {}
 		constexpr vec3(double e0, double e1, double e2) noexcept : m_e{e0, e1, e2} {}
-		constexpr vec3(double (&array)[3]) noexcept : m_e{array[0], array[1], array[2]} {}
+		constexpr vec3(const double* array) noexcept : m_e{array[0], array[1], array[2]} {}
+		constexpr vec3(const std::array<double, 3> arr) noexcept : m_e{arr[0], arr[1], arr[2]} {}
 
 		constexpr double x() const {
 			return m_e[0];
@@ -22,7 +24,8 @@ class vec3 {
 			return m_e[2];
 		}
 
-		constexpr void toArray(double (&out)[3]) const {
+		constexpr void toArray(double* out) const {
+			// Undefined behavior if out is too small of an array
 			for (auto i = 0; i < 3; ++i) {
 				out[i] = m_e[i];
 			}
