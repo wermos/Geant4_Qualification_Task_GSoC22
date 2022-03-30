@@ -24,59 +24,34 @@ namespace Solver {
 	template <typename Callable>
 #endif
 	/**
-     * This function does one step of the Yoshida LeapFrog algorithm. This is analogous to the do_step
+     * This function does one step of the Boris LeapFrog algorithm. This is analogous to the do_step
 	 * function in the Boost odeint library.
      */
 	State LeapFrogStepper(const State& currentState, const double t, const double tStep,
 			Callable EFunc, Callable BFunc) {
-		// These constants were evaluated to 15 digits of precision (which is the maximum precision
-		// a double can store) using yoshida.py.
-		constexpr double c1 = 0.675603595979829;
-		constexpr double c2 = -0.175603595979829;
-		constexpr double c3 = -0.175603595979829;
-		constexpr double c4 = 0.675603595979829;
-
-		constexpr double d1 = 1.35120719195966;
-		constexpr double d2 = -1.70241438391932;
-		constexpr double d3 = 1.35120719195966; 
-
 		// Query the function which returns the value of E for the current value
 		// of E and store it inside EField
-		auto EField = EFunc(t);
+		vec3 EField = EFunc(t);
 		// Query the function which returns the value of B for the current value
 		// of B and store it inside BField
-		auto BField = BFunc(t);
+		vec3 BField = BFunc(t);
+
+		vec3 h = (charge / (2 * mass)) * BField * tStep;
+		vec3 s = (2 * h) / (1 + h.lengthSquared());
+
 		// converting the momentum vector into a velocity vector
 		auto v = currentState.getMomentum() / mass;
-		// Calculating the total force on the particle
-		vec3 totalForce = charge * (EField + vec3::cross(v, BField));	
-		// Calculating the acceleration from the force
-		vec3 a = totalForce / mass;
 
-		vec3 x1 = currentState.getPosition() + c1 * v * tStep;
-		vec3 v1 = v + d1 * a * tStep;
+		vec3 v_minus = v + (charge / (2 * mass)) * EField * tStep;
+		vec3 v_prime = v_minus + vec3::cross(v_minus, h);
+		vec3 v_plus = v_minus + vec3::cross(v_prime, s);
+		vec3 final_v = v_plus + (charge / (2 * mass)) * EField * tStep;
 		
-		EField = EFunc(t + tStep);
-		BField = BFunc(t + tStep);
-		totalForce = charge * (EField + vec3::cross(v1, BField));	
-		a = totalForce / mass;
-
-		vec3 x2 = x1 + c2 * v1 * tStep;
-		vec3 v2 = v1 + d2 * a * tStep;
-
-		EField = EFunc(t + tStep);
-		BField = BFunc(t + tStep);
-		totalForce = charge * (EField + vec3::cross(v1, BField));	
-		a = totalForce / mass;
-
-		vec3 x3 = x2 + c3 * v2 * tStep;
-		vec3 v3 = v2 + c3 * a * tStep;
-
-		vec3 x4 = x3 + c4 * v3 * tStep;
-
 		State newState;
-		newState.setPosition(x4);
-		newState.setMomentum(mass * v3);
+
+		newState.setPosition(currentState.getPosition() + final_v * tStep);
+		newState.setMomentum(mass * final_v);
+
 		return newState;
 	}
 
