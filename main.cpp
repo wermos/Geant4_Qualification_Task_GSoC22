@@ -212,7 +212,7 @@ int main() {
 		RK4Momentum.push_back(std::fabs(trueMomentum - values[i].getMomentum().length()));
 	}
 
-	plt::figure_size(1280, 720);
+	plt::figure_size(1920, 1080);
 
 	plt::named_plot("RK4", numTurns, RK4Momentum, "r-");
 

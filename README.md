@@ -20,5 +20,6 @@ GSoC Qualification Task for Implementing Symplectic Integrators in Geant4
         ```bash
         cmake --build build -- -j4  # for 4 cores
         ```
+	* Keep in mind that compiling might take a minute or two, due to the template stuff in the project.
 3. Run the executable.
     * The executable will be in `build/`. The name of the executable is `solver` (Linux) or `solver.exe` (Windows).
