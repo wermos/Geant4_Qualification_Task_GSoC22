@@ -9,6 +9,7 @@
 	#include <concepts> // for std::same_as
 #endif
 
+#include "concepts.hpp"
 #include "state.hpp"
 #include "vec3.hpp"
 
@@ -18,13 +19,6 @@ extern double mass;
 extern double charge;
 
 namespace Solver {
-#ifdef __cpp_lib_concepts
-	template <typename FunctionType>
-	concept EMFunc = requires (FunctionType func, const double t) {
-		{ func(t) } -> std::same_as<std::array<double, 3>>;
-	};
-#endif
-
 #ifdef __cpp_lib_concepts
 	template <typename Callable> requires EMFunc<Callable>
 #else
@@ -64,8 +58,7 @@ namespace Solver {
 		State k3 = functionEvaluator(currentState + (tStep / 2) * k2, t + (tStep / 2), EFunc, BFunc);
 		State k4 = functionEvaluator(currentState + tStep * k3, t + tStep, EFunc, BFunc);
 
-		State tempState = currentState + (1.0 / 6) * tStep * (k1 + 2.0 * k2 + 2.0 * k3 + k4);
-		return tempState;
+		return currentState + (1.0 / 6) * tStep * (k1 + 2.0 * k2 + 2.0 * k3 + k4);
 	}
 
 #ifdef __cpp_lib_concepts
