@@ -1,16 +1,16 @@
 GSoC Qualification Task for Implementing Symplectic Integrators in Geant4
 ====
 
-# Building the Project
+## Building the Project
 
-## Pre-Requisites
+### Pre-Requisites
 
 1. A C++ compiler for C++14 or higher.
 2. CMake
 3. A Python installation with the relevant development headers (like the `python-dev` apt package on Ubuntu)
 4. The Matplotlib Python library
 
-## Instructions
+### Instructions
 1. Clone the repository.
     * You can clone the repo by running `git clone URL`.
 2. Run CMake on the repository.
@@ -21,4 +21,4 @@ GSoC Qualification Task for Implementing Symplectic Integrators in Geant4
         cmake --build build -- -j4  # for 4 cores
         ```
 3. Run the executable.
-    * The executable will be in `build/`. The name of the executable `solver` (Linux) or `solver.exe` (Windows).
+    * The executable will be in `build/`. The name of the executable is `solver` (Linux) or `solver.exe` (Windows).
