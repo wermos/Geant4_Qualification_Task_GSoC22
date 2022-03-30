@@ -2,17 +2,20 @@
 #include <array> // for std::array
 
 #include "boost/numeric/odeint.hpp" // for testing purposes
+
 #include "matplotlibcpp.h" // for graphing purposes
 
 #include "vec3.hpp"
 #include "state.hpp"
+
 #include "rk4.hpp"
+#include "leapfrog.hpp"
 
 typedef std::array<double, 6> StateType;
 // originally, this was boost::array, but then Boost documentation itself
 // recommended using std::array if the project in C++11 or higher.
 
-constexpr std::size_t numSteps = 1'000;
+constexpr std::size_t numSteps = 2'00;
 constexpr double speed_of_light = 299'792'458; // units: m/s
 double mass = 9.109e-31; // units: kg
 double charge = 1.602e-19; // units: C
@@ -97,6 +100,7 @@ int main() {
 	State initialState(pos0, initialMomentum);
 
 	std::vector<State> values = Solver::RK4(initialState, t0, tStep, numSteps, E, B);
+	std::vector<State> leapFrogValues = Solver::LeapFrog(initialState, t0, tStep, numSteps, E, B);
 
 	StateType initialStateBoost{pos0[0], pos0[1], pos0[2], initialMomentum[0], initialMomentum[1], initialMomentum[2]};
 	std::vector<StateType> boostValues = boostResult(initialStateBoost, t0, tStep, numSteps);
@@ -108,12 +112,21 @@ int main() {
 		times.push_back(t0 + i * tStep);
 	}
 
-	std::vector<double> X, Y;
-	X.reserve(numSteps + 1);
-	Y.reserve(numSteps + 1);
+	std::vector<double> rk4_X, rk4_Y;
+	rk4_X.reserve(numSteps + 1);
+	rk4_Y.reserve(numSteps + 1);
 	for (auto& elem: values) {
-		X.push_back(elem.getPosition().x());
-		Y.push_back(elem.getPosition().y());
+		rk4_X.push_back(elem.getPosition().x());
+		rk4_Y.push_back(elem.getPosition().y());
+		//std::cout << elem << '\n';
+	}
+
+	std::vector<double> leapFrog_X, leapFrog_Y;
+	leapFrog_X.reserve(numSteps + 1);
+	leapFrog_Y.reserve(numSteps + 1);
+	for (auto& elem: values) {
+		leapFrog_X.push_back(elem.getPosition().x());
+		leapFrog_Y.push_back(elem.getPosition().y());
 		//std::cout << elem << '\n';
 	}
 
@@ -128,10 +141,14 @@ int main() {
  
 	plt::figure_size(1280, 720);
 
-	plt::plot(times, X, "r--");
-	plt::plot(times, Y, "r--");
-	plt::plot(times, boostX, "g--");
-	plt::plot(times, boostY, "g--");
+	plt::plot(times, rk4_X, "r--");
+	plt::plot(times, rk4_Y, "r--");
+
+	plt::plot(times, leapFrog_X, "b--");
+	plt::plot(times, leapFrog_Y, "b--");
+	
+	//plt::plot(times, boostX, "g--");
+	//plt::plot(times, boostY, "g--");
 
 	plt::show();
 }
