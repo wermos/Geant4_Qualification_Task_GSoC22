@@ -218,7 +218,7 @@ int main() {
 
 	plt::named_plot("Boris Leap frog", numTurns, leapFrogMomentum, "b-");
 	
-	//plt::named_plot("Boost Adams-Bashforth-Moulton", numTurns, boostMomentum, "k-");
+	plt::named_plot("Boost Adams-Bashforth-Moulton", numTurns, boostMomentum, "k-");
 
 	plt::title("Deviation of Momentum w.r.t. number of turns"); // Add graph title
 
