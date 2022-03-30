@@ -3,6 +3,15 @@
 
 #include "vec3.hpp"
 
+/**
+ * A wrapper class around an array of 6 doubles, tailored specifically to the
+ * problem of integrating the equations of motion of a charged particle under
+ * the influence of E and B fields.
+ *
+ * I overloaded the arithmetic operators and made them work elementwise, to allow
+ * for more readable code.
+ *
+ */
 class State {
 	public:
 		constexpr State() noexcept : y{0, 0, 0, 0, 0, 0} {}
@@ -10,27 +19,40 @@ class State {
 						const double y2, const double y3,
 						const double y4, const double y5) noexcept :
 			y{y0, y1, y2, y3, y4, y5} {}
-		constexpr State(const double* arr) noexcept :
-			y{arr[0], arr[1], arr[2], arr[3], arr[4], arr[5]} {}
 		constexpr State(const vec3& x, const vec3& p) noexcept :
 			y{x[0], x[1], x[2], p[0], p[1], p[2]} {}
 		constexpr State(const State&) noexcept = default;
 
 		constexpr vec3 getPosition() const {
-			// TODO: Add comment explaining why this works
+			// The reason this works is a little tricky. &y[0] is a pointer to the
+			// first element in the array.
+			//
+			// In the vec3 class, we have a constructor which takes in a pointer to
+			// an array of of length at least 3, and then uses the first 3 elements
+			// in that array to make a vec3. Since the first 3 elements in y are the
+			// (x, y, z) coordinates of the position, passing in a pointer to the
+			// 0th element (i.e. the x coordinate) gets us a vec3 of the position.
 			return {&y[0]};
 		}
 
 		constexpr vec3 getMomentum() const {
-			// TODO: Add comment explaining why this works
+			// This uses an idea similar to the one explained in the comment in the
+			// getPosition() function, but instead of passing on a pointer to the
+			// 0th element, we pass on a pointer to the 3rd element. Hence, the vec3
+			// is constructed using y[3], y[4], and y[5], which store the (p_x, p_y,
+			// p_z) coordinates of the particle.
 			return {&y[3]};
 		}
 
 		constexpr void setPosition(const vec3& x) {
+			// This uses the same idea explained in the comment in the getPosition()
+			// function
 			x.toArray(&y[0]);
 		}
 
 		constexpr void setMomentum(const vec3& p) {
+			// This uses the same idea explained in the comment in the getMomentum()
+			// function
 			p.toArray(&y[3]);
 		}
 
@@ -41,6 +63,7 @@ class State {
 			}
 		}
 
+		// Arithmetic operator overloads
 		constexpr State operator-() const {
 			return {-y[0], -y[1], -y[2], -y[3], -y[4], -y[5]}; 
 		}
@@ -115,6 +138,7 @@ class State {
 			return copy;
 		}
 
+		// The << operator was also overloaded to help with debugging purposes.
 		friend std::ostream& operator<<(std::ostream& out, const State& s) {
 			for (auto i = 0; i < 6; i++) {
 				out << s.y[i] << " ";

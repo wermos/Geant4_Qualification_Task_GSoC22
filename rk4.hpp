@@ -5,10 +5,6 @@
 #include <array> // for std::array
 #include <vector>
 
-#ifdef __cpp_lib_concepts
-	#include <concepts> // for std::same_as
-#endif
-
 #include "concepts.hpp"
 #include "state.hpp"
 #include "vec3.hpp"
@@ -19,11 +15,18 @@ extern double mass;
 extern double charge;
 
 namespace Solver {
+// These ifdef clauses conditionally use the concepts defined in concepts.hpp if the compiler
+// supports C++ concepts. All the functions in this header use concepts if they are there, and
+// use normal template parameters if they are not implemented in the compiler.
 #ifdef __cpp_lib_concepts
 	template <typename Callable> requires EMFunc<Callable>
 #else
 	template <typename Callable>
 #endif
+	/**
+	 * This function is dedicated to evaluating the E and B functions at the current time and returning
+	 * the relevant information to the RKStepper function.
+	 */
 	State functionEvaluator(const State& currentState, const double t, Callable EFunc, Callable BFunc) {
 		// Query the function which returns the value of E for the current value
 		// of E and store it inside EField
@@ -33,13 +36,16 @@ namespace Solver {
 		// of B and store it inside BField
 		auto BField = BFunc(t);
 
-		auto v = currentState.getMomentum() / mass;
 		// converting the momentum vector into a velocity vector
+		auto v = currentState.getMomentum() / mass;
 
 		vec3 totalForce = charge * (EField + vec3::cross(v, BField));	
 
 		State newState;
 
+		// We are actually storing the velocity and the acceleration in the newState variable here, using
+		// the setPosition and setMomentum functions. Due to a small oversight in the design, the member
+		// function names aren't true to their purpose and don't make much sense in this case.
 		newState.setPosition(v);
 		newState.setMomentum(totalForce);
 
@@ -51,6 +57,10 @@ namespace Solver {
 #else
 	template <typename Callable>
 #endif
+	/**
+	 * This function does one step of the RK4 algorithm. This is analogous to the do_step function
+	 * in the Boost odeint library.
+	 */
 	State RKStepper(const State& currentState, const double t, const double tStep,
 			Callable EFunc, Callable BFunc) {
 		State k1 = functionEvaluator(currentState, t, EFunc, BFunc);
@@ -66,13 +76,20 @@ namespace Solver {
 #else
 	template <typename Callable>
 #endif
+	/**
+	 * This function runs the entire RK4 integration scheme on the given problem. It uses the E and B
+	 * fields that are passed into the function (as EFunc and BFunc).
+	 *
+	 * It runs numSteps of the algorithm on the problem, and then returns a vector of all the States
+	 * at each point.
+	 */
 	std::vector<State> RK4(const State initialState, const double t0,
 			const double tStep, const std::size_t numSteps, Callable EFunc,
 			Callable BFunc) {
 		std::vector<State> values;
 		values.reserve(numSteps + 1);
-		// explicitly initialize the vector with the required amount of space to
-		// prevent memory reallocations
+		// explicitly initialize the vector with the required amount of space to prevent memory
+		// reallocations
 
 		values.push_back(initialState);
 

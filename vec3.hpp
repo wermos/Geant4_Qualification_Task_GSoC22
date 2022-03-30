@@ -5,11 +5,20 @@
 #include <array>
 #include <ostream>
 
+// A 3D vector class
 class vec3 {
 	public:
 		constexpr vec3() noexcept : m_e{0, 0, 0} {}
 		constexpr vec3(double e0, double e1, double e2) noexcept : m_e{e0, e1, e2} {}
+
+		// This constructor is required to make the position and momentum vec3's from
+		// the pointers to elements in the State class. I.e., the getPosition() and
+		// getMomentum() functions use this constructor.
 		constexpr vec3(const double* array) noexcept : m_e{array[0], array[1], array[2]} {}
+
+		// This constructor is required for the implicit conversion of a std::array<double, 3>
+		// to a vec3. This is useful in performing implicit conversions from return type of the
+		// E and B fields into a vec3 automatically (i.e. without an explicit type cast).
 		constexpr vec3(const std::array<double, 3> arr) noexcept : m_e{arr[0], arr[1], arr[2]} {}
 
 		constexpr double x() const {
@@ -25,12 +34,15 @@ class vec3 {
 		}
 
 		constexpr void toArray(double* out) const {
-			// Undefined behavior if out is too small of an array
+			// Writes the contents of the vec3 into an array of doubles.
+			// Undefined behavior if out is too small, i.e. if the length of out
+			// is less than 3.
 			for (auto i = 0; i < 3; ++i) {
 				out[i] = m_e[i];
 			}
 		}
 
+		// Arithmetic operator overloads
 		constexpr vec3 operator-() const {
 			return {-m_e[0], -m_e[1], -m_e[2]};
 		}
@@ -102,6 +114,13 @@ class vec3 {
 			return copy;
 		}
 
+		// The << operator was also overloaded to help with debugging purposes.
+		friend std::ostream& operator<<(std::ostream& out, const vec3& v) {
+			out << v.m_e[0] << " " << v.m_e[1] << " " << v.m_e[2];
+			return out;
+		}
+
+		// Standard vector operations
 		constexpr static double dot(const vec3& u, const vec3& v) {
 			return u.m_e[0] * v.m_e[0]
 				 + u.m_e[1] * v.m_e[1]
@@ -124,11 +143,6 @@ class vec3 {
 		
 		constexpr double lengthSquared() const {
 			return m_e[0] * m_e[0] + m_e[1] * m_e[1] + m_e[2] * m_e[2];
-		}
-
-		friend std::ostream& operator<<(std::ostream& out, const vec3& v) {
-			out << v.m_e[0] << " " << v.m_e[1] << " " << v.m_e[2];
-			return out;
 		}
 
 	private:

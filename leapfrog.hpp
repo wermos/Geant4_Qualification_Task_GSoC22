@@ -15,21 +15,22 @@ extern double mass;
 extern double charge;
 
 namespace Solver {
+// These ifdef clauses conditionally use the concepts defined in concepts.hpp if the compiler
+// supports C++ concepts. All the functions in this header use concepts if they are there, and
+// use normal template parameters if they are not implemented in the compiler.
 #ifdef __cpp_lib_concepts
 	template <typename Callable> requires EMFunc<Callable>
 #else
 	template <typename Callable>
 #endif
+	/**
+     * This function does one step of the Yoshida LeapFrog algorithm. This is analogous to the do_step
+	 * function in the Boost odeint library.
+     */
 	State LeapFrogStepper(const State& currentState, const double t, const double tStep,
 			Callable EFunc, Callable BFunc) {
-		/**
-		
-
-		vec3 newPosition = currentState.getPosition() + v * tStep + (1.0 / 2) * a * tStep * tStep;
-		//vec3 newMomentum = currentState.getMomentum() + v * tStep + (1.0 / 2) * a * tStep * tStep;
-		vec3 newVelocity = v + (1.0 / 2) * (a + ____) * tStep;
-		*/
-		
+		// These constants were evaluated to 15 digits of precision (which is the maximum precision
+		// a double can store) using yoshida.py.
 		constexpr double c1 = 0.675603595979829;
 		constexpr double c2 = -0.175603595979829;
 		constexpr double c3 = -0.175603595979829;
@@ -49,6 +50,7 @@ namespace Solver {
 		auto v = currentState.getMomentum() / mass;
 		// Calculating the total force on the particle
 		vec3 totalForce = charge * (EField + vec3::cross(v, BField));	
+		// Calculating the acceleration from the force
 		vec3 a = totalForce / mass;
 
 		vec3 x1 = currentState.getPosition() + c1 * v * tStep;
@@ -83,13 +85,20 @@ namespace Solver {
 #else
 	template <typename Callable>
 #endif
+	/**
+     * This function runs the entire Yohsida integration scheme on the given problem. It uses the E
+	 * and B fields that are passed into the function (as EFunc and BFunc).
+     *
+     * It runs numSteps of the algorithm on the problem, and then returns a vector of all the States
+     * at each point.
+     */
 	std::vector<State> LeapFrog(const State initialState, const double t0,
 			const double tStep, const std::size_t numSteps, Callable EFunc,
 			Callable BFunc) {
 		std::vector<State> values;
 		values.reserve(numSteps + 1);
-		// explicitly initialize the vector with the required amount of space to
-		// prevent memory reallocations
+		// explicitly initialize the vector with the required amount of space to prevent memory
+		// reallocations
 
 		values.push_back(initialState);
 

@@ -1,3 +1,15 @@
+"""
+I used this program to find the numerical values of each constant in the Yoshida
+algorithm (a specific type of algorithm in the leapfrog family of algorithms),
+to 15 digits of accuracy (which is the limit of accuracy in a C++ double on a
+64 bit machine.
+
+I then copied and pasted the numerical values into leapfrog.hpp.
+
+I used the Wikipedia page for reference:
+https://en.wikipedia.org/wiki/Leapfrog_integration#4th_order_Yoshida_integrator
+"""
+
 import sympy
 
 cbrtTwo = sympy.cbrt(2)
